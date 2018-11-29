@@ -1,5 +1,6 @@
 package ndesilets.wstest;
 
+import ndesilets.wstest.interfaces.JobCompletionAlert;
 import ndesilets.wstest.models.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +13,13 @@ public class ProcessJobThread implements Runnable {
     private int id;
     private BlockingQueue<Job> pendingQueue;
     private BlockingQueue<Job> processingQueue;
+    private JobCompletionAlert callback;
 
-    public ProcessJobThread(int id, BlockingQueue<Job> pendingQueue, BlockingQueue<Job> processingQueue) {
+    public ProcessJobThread(int id, BlockingQueue<Job> pendingQueue, BlockingQueue<Job> processingQueue, JobCompletionAlert callback) {
         this.id = id;
         this.pendingQueue = pendingQueue;
         this.processingQueue = processingQueue;
+        this.callback = callback;
     }
 
     public void run() {
@@ -31,7 +34,9 @@ public class ProcessJobThread implements Runnable {
                     Thread.sleep(job.getWork() * 1000);
 
                     processingQueue.remove(job);
-                    log.info("[{}] - Finished job: {}", id, job.getName());
+                    log.info("[{}] - Finished job: {} after {}s", id, job.getName(), job.getWork());
+
+                    callback.onJobComplete(job);
                 }
 
                 log.info("[{}] - Sleeping...", id);

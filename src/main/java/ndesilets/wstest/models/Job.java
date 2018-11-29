@@ -31,4 +31,12 @@ public class Job {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return "Job{" +
+                "name='" + name + '\'' +
+                ", work=" + work +
+                '}';
+    }
 }

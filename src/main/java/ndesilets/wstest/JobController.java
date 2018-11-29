@@ -1,5 +1,7 @@
 package ndesilets.wstest;
 
+import ndesilets.wstest.interfaces.JobCompletionAlert;
+import ndesilets.wstest.models.APIJobCompletion;
 import ndesilets.wstest.models.APIResponse;
 import ndesilets.wstest.models.Job;
 import ndesilets.wstest.models.JobRequest;
@@ -22,15 +24,30 @@ public class JobController {
 
     private SimpMessagingTemplate template;
 
-    private ExecutorService executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+    private ExecutorService executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
     private BlockingQueue<Job> pendingQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Job> processingQueue = new LinkedBlockingQueue<>();
+
+    private JobCompletionAlert callback = new JobCompletionAlert() {
+        @Override
+        public void onJobComplete(Job job) {
+            log.info("[Main] - onJobComplete: {}", job);
+            template.convertAndSend("/jobs/completed", new APIResponse(job.getName()));
+        }
+
+        @Override
+        public void onJobFailure(Job job) {
+            log.info("[Main] - onJobFailure: {}", job);
+            template.convertAndSend("/jobs/failed", new APIResponse(job.getName()));
+        }
+    };
 
     @PostConstruct
     public void initialize() {
         for(int i = 0; i < NUM_THREADS; i++) {
-            executor.execute(new ProcessJobThread(i, pendingQueue, processingQueue));
+            executor.execute(new ProcessJobThread(i, pendingQueue, processingQueue, callback));
         }
+        log.info("[Main] - Started {} background worker(s)", NUM_THREADS);
     }
 
     @Autowired
@@ -50,27 +67,20 @@ public class JobController {
         return !(pendingQueue.contains(job) || processingQueue.contains(job));
     }
 
-    @Scheduled(fixedRate = 5000)
-    public void sendStatus() {
-        if (!pendingQueue.isEmpty()) {
-            sendJobsStatus();
-        }
-    }
-
     @MessageMapping("/jobs/new")
-    @SendTo("/jobs/status")
+    @SendTo("/jobs/pending")
     public APIResponse handleNewJob(JobRequest jobRequest) throws Exception {
         Job job = new Job(jobRequest.getName(), genRandomWaitTime());
 
         if (isJobUnique(job)) {
-            log.info("Adding job to queue: " + job.getName());
+            log.info("[Main] - Adding job to queue: " + job.getName());
             pendingQueue.add(job);
 
-            return new APIResponse("Job added!");
+            return new APIResponse(job.getName());
         } else {
-            log.info("Job already exists: " + job.getName());
+            log.info("[Main] - Job already exists: " + job.getName());
 
-            return new APIResponse("Job already exists!");
+            return new APIResponse(null);
         }
     }
 }
