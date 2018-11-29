@@ -24,7 +24,7 @@ public class JobController {
 
     private SimpMessagingTemplate template;
 
-    private ExecutorService executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
+    private ExecutorService executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(NUM_THREADS);
     private BlockingQueue<Job> pendingQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Job> processingQueue = new LinkedBlockingQueue<>();
 
