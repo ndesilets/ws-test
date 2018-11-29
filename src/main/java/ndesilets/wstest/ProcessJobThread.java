@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.BlockingQueue;
 
-@Component
 public class ProcessJobThread implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(ProcessJobThread.class);
     private int id;
@@ -22,20 +21,22 @@ public class ProcessJobThread implements Runnable {
 
     public void run() {
         try {
-            while (!pendingQueue.isEmpty()) {
-                Job job = pendingQueue.take();
-                log.info("[{}] - Got job: {}", id, job.getName());
+            while (true) {
+                while (!pendingQueue.isEmpty()) {
+                    Job job = pendingQueue.take();
+                    log.info("[{}] - Got job: {}", id, job.getName());
 
-                processingQueue.add(job);
+                    processingQueue.add(job);
 
-                Thread.sleep(job.getWork() * 1000);
+                    Thread.sleep(job.getWork() * 1000);
 
-                processingQueue.remove(job);
-                log.info("[{}] - Finished job: {}", id, job.getName());
+                    processingQueue.remove(job);
+                    log.info("[{}] - Finished job: {}", id, job.getName());
+                }
+
+                log.info("[{}] - Sleeping...", id);
+                Thread.sleep(5000);
             }
-
-            log.info("[{}] - Sleeping...", id);
-            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

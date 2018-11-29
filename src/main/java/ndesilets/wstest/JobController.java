@@ -6,15 +6,14 @@ import ndesilets.wstest.models.JobRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Controller
 public class JobController {
@@ -23,11 +22,9 @@ public class JobController {
 
     private SimpMessagingTemplate template;
 
-    @Autowired
-    private TaskExecutor executor;
+    private ExecutorService executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
     private BlockingQueue<Job> pendingQueue = new LinkedBlockingQueue<>();
     private BlockingQueue<Job> processingQueue = new LinkedBlockingQueue<>();
-    private AtomicBoolean processingJobs = new AtomicBoolean(false);
 
     @PostConstruct
     public void initialize() {
@@ -46,11 +43,18 @@ public class JobController {
     }
 
     private void sendJobsStatus() {
-        template.convertAndSend("/jobs/status", new APIResponse("test 1234"));
+        template.convertAndSend("/jobs/status", new APIResponse(pendingQueue.size() + " jobs remaining."));
     }
 
     private boolean isJobUnique(Job job) {
         return !(pendingQueue.contains(job) || processingQueue.contains(job));
+    }
+
+    @Scheduled(fixedRate = 5000)
+    public void sendStatus() {
+        if (!pendingQueue.isEmpty()) {
+            sendJobsStatus();
+        }
     }
 
     @MessageMapping("/jobs/new")

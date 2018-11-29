@@ -1,11 +1,9 @@
-package ndesilets.wstest.config;
+package ndesilets.wstest.configs;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
-@EnableAsync
 @EnableScheduling
-public class AppConfig {
+public class ScheduleConfig {
 }
