@@ -1,0 +1,70 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>WS Test</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://bootswatch.com/4/materia/bootstrap.min.css">
+    <link rel="stylesheet" href="/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.3.0/sockjs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+</head>
+
+<body>
+<div id="main" class="container">
+    <h1 style="margin-bottom: 24px;">WS Test</h1>
+
+    <div class="card bg-secondary mb-3" style="width: 100%;">
+        <div class="card-header">New Job</div>
+        <div class="card-body">
+            <div class="form-group">
+                <label class="col-form-label" for="job-name">Job name</label>
+                <input id="job-name" type="text" class="form-control" placeholder="Leave blank for random name">
+            </div>
+            <button id="submit-job" type="button" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+
+    <div class="card bg-secondary mb-3" style="width: 100%;">
+        <div class="card-header">Pending Jobs</div>
+        <div class="card-body">
+            <ul id="pending-jobs-list" class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Cras justo odio
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Dapibus ac facilisis in
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Morbi leo risus
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card bg-secondary mb-3" style="width: 100%;">
+        <div class="card-header">Recently Completed Jobs</div>
+        <div class="card-body">
+            <ul id="completed-jobs-list" class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Cras justo odio
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Dapibus ac facilisis in
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Morbi leo risus
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="/main.js"></script>
+</body>
+
+</html>
